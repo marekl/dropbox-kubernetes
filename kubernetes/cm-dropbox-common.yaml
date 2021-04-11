@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: dropbox-common
+
+data:
+  # marekl@pinenas: id -u
+  DROPBOX_UID: 1000
+  # marekl@pinenas: id -g
+  DROPBOX_GID: 1000
+  TZ: America/Los_Angeles

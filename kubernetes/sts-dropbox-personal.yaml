@@ -30,7 +30,7 @@ spec:
 
           envFrom:
             - configMapRef:
-                name: consumer
+                name: dropbox-common
 
           volumeMounts:
             - name: dropbox-data

@@ -6,9 +6,11 @@ namespace: dropbox
 images:
 - name: dropbox-image
   newName: registry.gitlab.com/marekli/common/dropbox-docker
-  newTag: marekl-dev
+  newTag: v0.1.0
 
 resources:
-  - sts-dropbox-personal.yaml
-  - sts-dropbox-ecogate.yaml
   - sealed-pull-secret.yaml
+  - cm-dropbox-common.yaml
+  - sts-dropbox-personal.yaml
+  # - sts-dropbox-ecogate.yaml
+
