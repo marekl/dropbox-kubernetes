@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: dropbox
+
+images:
+- name: dropbox-image
+  newName: registry.gitlab.com/marekli/common/dropbox-docker
+  newTag: marekl-dev
+
+resources:
+  - sts-dropbox-personal.yaml
+  - sts-dropbox-ecogate.yaml
+  - sealed-pull-secret.yaml
