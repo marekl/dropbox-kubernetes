@@ -6,7 +6,7 @@ metadata:
 
 data:
   # marekl@pinenas: id -u
-  DROPBOX_UID: 1000
+  DROPBOX_UID: "1000"
   # marekl@pinenas: id -g
-  DROPBOX_GID: 1000
+  DROPBOX_GID: "1000"
   TZ: America/Los_Angeles

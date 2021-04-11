@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: StatefulSet
+
+metadata:
+  name: dropbox-ecogate
+
+spec:
+  selector:
+    matchLabels:
+      app: dropbox
+      account: ecogate
+
+  replicas: 1
+  serviceName: dropbox-ecogate
+  podManagementPolicy: Parallel
+
+  template:
+    metadata:
+      labels:
+        app: dropbox
+        account: ecogate
+
+    spec:
+      imagePullSecrets:
+        - name: pull-secret
+
+      containers:
+        - name: dropbox
+          image: dropbox-image
+
+          envFrom:
+            - configMapRef:
+                name: dropbox-common
+
+          volumeMounts:
+            - name: dropbox-data
+              mountPath: /opt/dropbox/Dropbox
+
+            - name: dropbox-meta
+              mountPath: /opt/dropbox/.dropbox
+
+          # resources:
+          #   requests:
+          #     cpu: 100m
+          #     memory: 256Mi
+          #   # Limits are disabled due a CFS bug in the linux kernel causing
+          #   # premature throttling.
+          #   # https://medium.com/omio-engineering/cpu-limits-and-aggressive-throttling-in-kubernetes-c5b20bd8a718
+          #   limits:
+          #     cpu: 1000m
+          #     memory: 1024Mi
+
+      volumes:
+        - name: dropbox-data
+          hostPath:
+            path: /vault/marekl/dropbox-ecogate
+            type: DirectoryOrCreate
+
+        - name: dropbox-meta
+          hostPath:
+            path: /vault/kubernetes/marekl-dropbox-meta-ecogate
+            type: DirectoryOrCreate
+
+  volumeClaimTemplates: []
