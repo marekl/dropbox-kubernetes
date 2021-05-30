@@ -2,23 +2,23 @@ apiVersion: apps/v1
 kind: StatefulSet
 
 metadata:
-  name: dropbox-ecogate
+  name: dropbox-personal
 
 spec:
   selector:
     matchLabels:
       app: dropbox
-      account: ecogate
+      account: personal
 
   replicas: 1
-  serviceName: dropbox-ecogate
+  serviceName: dropbox-personal
   podManagementPolicy: Parallel
 
   template:
     metadata:
       labels:
         app: dropbox
-        account: ecogate
+        account: personal
 
     spec:
       imagePullSecrets:
@@ -26,7 +26,7 @@ spec:
 
       containers:
         - name: dropbox
-          image: dropbox-image
+          image: app-image
 
           envFrom:
             - configMapRef:
@@ -53,12 +53,12 @@ spec:
       volumes:
         - name: dropbox-data
           hostPath:
-            path: /vault/marekl/dropbox-ecogate
+            path: /vault/marekl/dropbox-personal
             type: DirectoryOrCreate
 
         - name: dropbox-meta
           hostPath:
-            path: /vault/kubernetes/marekl-dropbox-meta-ecogate
+            path: /vault/kubernetes/marekl-dropbox-meta-personal
             type: DirectoryOrCreate
 
   volumeClaimTemplates: []
