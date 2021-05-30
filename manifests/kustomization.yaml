@@ -4,9 +4,9 @@ kind: Kustomization
 namespace: dropbox
 
 images:
-- name: app-image
-  newName: registry.gitlab.com/marekli/common/dropbox-docker
-  newTag: v0.1.1
+  - name: app-image
+    newName: registry.gitlab.com/marekli/common/dropbox-docker
+    newTag: v0.1.1
 
 resources:
   - sealed-pull-secret.yaml
