@@ -2,7 +2,7 @@
 FROM debian:buster-slim
 
 # Maintainer
-LABEL maintainer "Alexander Graf <alex@otherguy.io>"
+LABEL maintainer "Marek Litomisky <marek@litomisky.com>"
 
 # Required to prevent warnings
 ARG DEBIAN_FRONTEND=noninteractive
@@ -59,7 +59,7 @@ RUN mkdir -p /opt/dropbox/bin/ /tmp \
 VOLUME ["/opt/dropbox/.dropbox", "/opt/dropbox/Dropbox"]
 
 # Build arguments
-ARG VCS_REF=master
+ARG VCS_REF=main
 ARG VERSION=""
 ARG BUILD_DATE=""
 
@@ -69,7 +69,7 @@ LABEL org.label-schema.name           "Dropbox"
 LABEL org.label-schema.version        "${VERSION}"
 LABEL org.label-schema.build-date     "${BUILD_DATE}"
 LABEL org.label-schema.description    "Standalone Dropbox client"
-LABEL org.label-schema.vcs-url        "https://github.com/otherguy/docker-dropbox"
+LABEL org.label-schema.vcs-url        "https://github.com/marekl/dropbox-docker"
 LABEL org.label-schema.vcs-ref        "${VCS_REF}"
 
 # Configurable sleep delay
