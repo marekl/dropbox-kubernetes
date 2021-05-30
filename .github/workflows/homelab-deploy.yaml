@@ -73,7 +73,7 @@ jobs:
           chmod u+x kustomize
           INPUT_DIR="${{ github.workspace }}/app/manifests"
           cd "$INPUT_DIR"
-          ${{ github.workspace }}/kustomize edit set image app-image=registry.gitlab.com/marekl/common/${{ env.bareRepository }}:${{ github.sha }}
+          ${{ github.workspace }}/kustomize edit set image app-image=registry.gitlab.com/marekli/common/${{ env.bareRepository }}:${{ github.sha }}
           OUTPUT_DIR="${{ github.workspace }}/homelab/applications/${{ env.bareRepository }}"
           rm -rf "$OUTPUT_DIR"
           mkdir -p "$OUTPUT_DIR"
