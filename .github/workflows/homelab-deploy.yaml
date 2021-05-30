@@ -1,0 +1,120 @@
+#############################################################################
+# DO NOT EDIT OUTSIDE OF marekl/personal-github-repo-sync REPOSITORY        #
+#                                                                           #
+# This file is synced from the marekl/personal-github-repo-sync repository, #
+# any edits made outside of that repository will be OVERWRITTEN!            #
+#############################################################################
+
+name: "HomeLab Deploy"
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  gitops:
+    name: HomeLab Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set Environment
+        shell: bash
+        run: |
+          echo "bareRepository=$(basename ${{ github.repository }})" >> $GITHUB_ENV
+
+      - name: Checkout Application
+        uses: actions/checkout@v2
+        with:
+          path: app
+          fetch-depth: 0
+
+      - name: Login to the Docker registry
+        uses: docker/login-action@v1
+        with:
+          registry: registry.gitlab.com
+          username: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
+          password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
+
+      - name: make push
+        shell: bash
+        run: |
+          cd app
+          make push tag=${{ github.sha }}
+
+      - name: Load HomeLab Deploy Key
+        shell: bash
+        run: |
+          mkdir -p ~/.ssh/
+          echo "${{ secrets.HOMELAB_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: Checkout HomeLab Repo
+        shell: bash
+        run: |
+          git \
+            -c protocol.version=2 \
+            -c core.sshCommand="ssh -i ~/.ssh/id_rsa" \
+            clone \
+            --branch main \
+            --depth=1 \
+            --no-tags \
+            git@github.com:marekl/homelab.git homelab
+
+      - name: Update App Manifests in HomeLab repo
+        shell: bash
+        env:
+          KUSTOMIZE_VERSION: v4.1.3
+        run: |
+          wget \
+            -qO- \
+            https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz \
+            | tar -xvz
+          chmod u+x kustomize
+          INPUT_DIR="${{ github.workspace }}/app/manifests"
+          cd "$INPUT_DIR"
+          ${{ github.workspace }}/kustomize edit set image app-image=registry.gitlab.com/marekl/common/${{ env.bareRepository }}:${{ github.sha }}
+          OUTPUT_DIR="${{ github.workspace }}/homelab/applications/${{ env.bareRepository }}"
+          rm -rf "$OUTPUT_DIR"
+          mkdir -p "$OUTPUT_DIR"
+          cp -r "$INPUT_DIR/"* "$OUTPUT_DIR"
+
+      - name: Push Updated Manifests to HomeLab Repo
+        shell: bash
+        run: |
+          cd ${{ github.workspace }}/app
+          CM=`git log --format="%h %B" --ancestry-path ${{ github.event.before }}..${{ github.event.after }}`
+          cd ${{ github.workspace }}/homelab
+          git config --global user.name "${{ github.event.commits[0].author.name }}"
+          git config --global user.email "${{ github.event.commits[0].author.email }}"
+          git add .
+          git commit -m "${{ github.repository }} $CM"
+          git \
+            -c protocol.version=2 \
+            -c core.sshCommand="ssh -i ~/.ssh/id_rsa" \
+            push
+
+      - name: Clean Up SSH Keys
+        if: always()
+        shell: bash
+        run: |
+          rm -rf ~/.ssh
+
+      # Discord Notifications
+      - name: Send Failure Discord Notification
+        uses: rjstone/discord-webhook-notify@v1.0.4
+        if: ${{ failure() }}
+        with:
+          severity: error
+          username: GitHub Actions
+          text: '${{ github.repository }} build failed!'
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+      - name: Send Failure Discord Success
+        uses: rjstone/discord-webhook-notify@v1.0.4
+        if: ${{ success() }}
+        with:
+          severity: info
+          username: GitHub Actions
+          text: '${{ github.repository }} build successful!'
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK_URL }}
