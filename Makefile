@@ -4,7 +4,7 @@ SHELL = /bin/bash
 context ?= $(shell kubectl config current-context)
 tag ?= $(shell echo `whoami`"-dev")
 registry := registry.gitlab.com/marekli/common
-app := dropbox-docker
+app := dropbox-kubernetes
 
 # Text colors
 TEXT_BOLD := $(shell tput -Txterm bold)

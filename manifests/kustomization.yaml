@@ -5,7 +5,7 @@ namespace: dropbox
 
 images:
   - name: app-image
-    newName: registry.gitlab.com/marekli/common/dropbox-docker
+    newName: registry.gitlab.com/marekli/common/dropbox-kubernetes
     newTag: v0.1.1
 
 resources:
