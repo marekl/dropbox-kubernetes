@@ -29,6 +29,12 @@ jobs:
           path: app
           fetch-depth: 0
 
+      - name: Lint
+        shell: bash
+        run: |
+          cd app
+          make lint
+
       - name: Login to the Docker registry
         uses: docker/login-action@v1
         with:
