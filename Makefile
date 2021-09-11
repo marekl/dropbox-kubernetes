@@ -32,11 +32,15 @@ HELP_FUN = \
 	}; \
 	print "\n"; }
 
-help: ##@other Show this help.
+help: ##@Other Show this help.
 	@perl -e '$(HELP_FUN)' $(MAKEFILE_LIST)
 
+###########
+## Build ##
+###########
+
 .PHONY: build
-build: ##@docker Build the custom dropbox docker image Options: tag
+build: ##@Build Build the custom dropbox docker image Options: tag
 	@echo "$(LG_ARROW) Building image $(registry)/$(app):$(tag)"
 	@docker \
 		build \
@@ -45,7 +49,7 @@ build: ##@docker Build the custom dropbox docker image Options: tag
 		.
 
 PHONY: build-clean
-build-clean: ##@docker Build the custom dropbox docker image without cache. Options: tag
+build-clean: ##@Build Build the custom dropbox docker image without cache. Options: tag
 	@echo "$(LG_ARROW) Building image without cache $(registry)/$(app):$(TEXT_RED)$(tag)$(TEXT_RESET)"
 	@docker \
 		build \
@@ -55,8 +59,38 @@ build-clean: ##@docker Build the custom dropbox docker image without cache. Opti
 		-f Dockerfile \
 		.
 
+.PHONY: push
+push: build ##@Build Build and push the dropbox docker image. Options: tag
+	@echo "$(LG_ARROW) Pushing image $(registry)/$(app):$(tag)"
+	@docker \
+		push \
+		$(registry)/$(app):$(tag)
+
+###########
+## Build ##
+###########
+
+.PHONY: lint
+lint: ##@Dev Lint the dockerfile
+	@echo "$(LG_ARROW) Linting Dockerfile using hadolint"
+	@echo "    For rule descriptions see: $(TEXT_YELLOW)https://github.com/hadolint/hadolint#rules$(TEXT_RESET)"
+	@# Run with --no-fail since this dockerfile is just copied from upstream
+	@docker \
+		run \
+		--rm \
+		-i \
+		hadolint/hadolint \
+		hadolint \
+		--no-fail \
+		- \
+		< Dockerfile
+
+################
+## Kubernetes ##
+################
+
 .PHONY: generate-pull-secret
-generate-pull-secret: ##@kubernetes Create or update the sealed pull secret. Options: context
+generate-pull-secret: ##@Kubernetes Create or update the sealed pull secret. Options: context
 	@echo "$(LG_ARROW) Generating image pull secret"
 	@echo "The docker images are stored in GitLab. You can generate"
 	@echo "a Deploy Token with the read_registry permission to use for the"
@@ -88,10 +122,3 @@ generate-pull-secret: ##@kubernetes Create or update the sealed pull secret. Opt
 		-o yaml \
 		> kubernetes/sealed-pull-secret.yaml; \
 	echo "$(ARROW) kubernetes/sealed-pull-secret.yaml";
-
-.PHONY: push
-push: build ##@docker Build and push the dropbox docker image. Options: tag
-	@echo "$(LG_ARROW) Pushing image $(registry)/$(app):$(tag)"
-	@docker \
-		push \
-		$(registry)/$(app):$(tag)
