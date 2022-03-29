@@ -1,6 +1,6 @@
 # Based on Debian
 # buster-slim
-FROM debian:10.11-slim
+FROM debian:11.3-slim
 
 # Maintainer
 LABEL maintainer "Marek Litomisky <marek@litomisky.com>"
