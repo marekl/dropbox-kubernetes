@@ -24,7 +24,7 @@ jobs:
           echo "bareRepository=$(basename ${{ github.repository }})" >> $GITHUB_ENV
 
       - name: Checkout Application
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           path: app
           fetch-depth: 0
